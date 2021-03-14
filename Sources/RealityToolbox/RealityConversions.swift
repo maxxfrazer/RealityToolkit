@@ -15,8 +15,10 @@ enum LoadRemoteError: Error {
     case downloadError
 }
 
-
-fileprivate func downloadRemoteFile(contentsOf url: URL, override: Bool = false, completion: @escaping ((Result<URL, Error>) -> Void)) {
+private func downloadRemoteFile(
+    contentsOf url: URL, override: Bool = false,
+    completion: @escaping ((Result<URL, Error>) -> Void)
+) {
     var request = URLRequest(url: url, timeoutInterval: 10)
     let endLocation = FileManager.default.temporaryDirectory
         .appendingPathComponent(url.lastPathComponent)
@@ -37,7 +39,7 @@ fileprivate func downloadRemoteFile(contentsOf url: URL, override: Bool = false,
     request.httpMethod = "GET"
     let task = URLSession.shared.downloadTask(
         with: request
-    ) { location, response, error in
+    ) { location, _, error in
         if let error = error {
             completion(.failure(error))
             return
@@ -47,7 +49,10 @@ fileprivate func downloadRemoteFile(contentsOf url: URL, override: Bool = false,
             return
         }
         do {
-            try FileManager.default.moveItem(atPath: location.path, toPath: endLocation.path)
+            try FileManager.default.moveItem(
+                atPath: location.path,
+                toPath: endLocation.path
+            )
         } catch let err {
             print("Could not move item")
             completion(.failure(err))
@@ -80,16 +85,19 @@ public extension TextureResource {
             }
         }
     }
-    private static func loadResourceCompletion(contentsOf url: URL, completion: @escaping (Result<TextureResource, Error>) -> Void) {
+    private static func loadResourceCompletion(
+        contentsOf url: URL,
+        completion: @escaping (Result<TextureResource, Error>
+    ) -> Void) {
         _ = TextureResource.loadAsync(contentsOf: url).sink(
             receiveCompletion: { loadCompletion in
-              // Added this switch just as an example
-              switch loadCompletion {
+                // Added this switch just as an example
+                switch loadCompletion {
                 case .failure(let loadErr):
                     completion(.failure(loadErr))
                 case .finished:
-                  print("entity loaded without errors")
-              }
+                    print("entity loaded without errors")
+                }
             }, receiveValue: { textureResource in
                 completion(.success(textureResource))
             }
@@ -105,7 +113,10 @@ public extension Entity {
     ///   - url: URL for remote file, including file name and extension
     ///   - override: Whether the file should be overridden if previously downloaded
     ///   - completion: Result type callback to either get the Entity or an Error
-    static func RTLoadRemoteAsync(contentsOf url: URL, override: Bool = false, completion: @escaping (Result<Entity, Error>) -> Void) {
+    static func RTLoadRemoteAsync(
+        contentsOf url: URL, override: Bool = false,
+        completion: @escaping (Result<Entity, Error>) -> Void
+    ) {
         downloadRemoteFile(contentsOf: url, override: override) { result in
             switch result {
             case .success(let endURL):
@@ -115,16 +126,19 @@ public extension Entity {
             }
         }
     }
-    private static func loadModelCompletion(contentsOf url: URL, completion: @escaping (Result<Entity, Error>) -> Void) {
+    private static func loadModelCompletion(
+        contentsOf url: URL,
+        completion: @escaping (Result<Entity, Error>) -> Void
+    ) {
         _ = Entity.loadAsync(contentsOf: url).sink(
             receiveCompletion: { loadCompletion in
-              // Added this switch just as an example
-              switch loadCompletion {
+                // Added this switch just as an example
+                switch loadCompletion {
                 case .failure(let loadErr):
                     completion(.failure(loadErr))
                 case .finished:
-                  print("entity loaded without errors")
-              }
+                    print("entity loaded without errors")
+                }
             }, receiveValue: { entity in
                 completion(.success(entity))
             }
