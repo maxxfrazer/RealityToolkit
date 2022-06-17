@@ -4,13 +4,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "RealityToolbox",
-    platforms: [.iOS(.v13), .macOS(.v10_15)],
+    name: "RealityToolkit",
+    platforms: [.iOS("15.0"), .macOS("12")],
     products: [
-        .library(name: "RealityToolbox", targets: ["RealityToolbox"])
+        .library(name: "RealityToolkit", targets: ["RealityToolkit"])
     ],
     dependencies: [],
     targets: [
-        .target(name: "RealityToolbox", dependencies: [])
+        .target(name: "RealityToolkit", dependencies: []),
+        .testTarget(name: "RealityToolkitTests", dependencies: ["RealityToolkit"])
     ]
 )
