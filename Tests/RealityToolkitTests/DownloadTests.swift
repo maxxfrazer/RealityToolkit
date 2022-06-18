@@ -15,20 +15,25 @@ import Combine
 final class Download_Tests: XCTestCase {
 
     var downloadsFolder: URL = {
-        let fm = FileManager.default
-        let folder = fm.temporaryDirectory
+        let fmd = FileManager.default
+        let folder = fmd.temporaryDirectory
 
         var isDirectory: ObjCBool = false
-        let fileEx = fm.fileExists(atPath: folder.path, isDirectory: &isDirectory)
+        let fileEx = fmd.fileExists(atPath: folder.path, isDirectory: &isDirectory)
         if !(fileEx) {
-            try! fm.createDirectory(at: folder, withIntermediateDirectories: false, attributes: nil)
+            do {
+                try fmd.createDirectory(at: folder, withIntermediateDirectories: false, attributes: nil)
+            } catch {
+                XCTFail("Could not create directory")
+            }
         }
         return folder
     }()
 
     func testDownloadImg() async throws {
         let saveToParam = self.downloadsFolder.appendingPathComponent("test_image.png")
-        let testImg = "https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-suite-everything-you-need-know-about-google-newest-0.png"
+        let testImg = "https://www.freepnglogos.com/uploads/google-logo-png/" +
+                      "google-logo-png-suite-everything-you-need-know-about-google-newest-0.png"
         let remoteFileLoaded = try await RealityToolkit.downloadRemoteFile(
             contentsOf: URL(string: testImg)!,
             saveTo: saveToParam,
@@ -42,7 +47,10 @@ final class Download_Tests: XCTestCase {
         let texResource = try await RealityToolkit.loadRemoteTexture(contentsOf: saveToParam)
 
         XCTAssertEqual(texResource.width, 1024, "Width is not 1024, is instead: \(texResource.width)")
-        XCTAssertEqual(texResource.width, texResource.height, "Width and Height do not match. Height: \(texResource.height)")
+        XCTAssertEqual(
+            texResource.width, texResource.height,
+            "Width and Height do not match. Height: \(texResource.height)"
+        )
     }
 
     func testDownloadImgFail() async throws {
@@ -63,7 +71,10 @@ final class Download_Tests: XCTestCase {
             contentsOf: URL(string: testImg)!,
             saveTo: self.downloadsFolder,
             useCache: false)
-        XCTAssertEqual(remoteFileLoaded, self.downloadsFolder.appendingPathComponent("tv_retro.usdz"), "Saved location and saveToParam to not match.")
+        XCTAssertEqual(
+            remoteFileLoaded, self.downloadsFolder.appendingPathComponent("tv_retro.usdz"),
+            "Saved location and saveToParam to not match."
+        )
         XCTAssertTrue(
             FileManager.default.fileExists(atPath: remoteFileLoaded.path),
             "File not downloaded"
@@ -76,4 +87,3 @@ final class Download_Tests: XCTestCase {
         )
     }
 }
-

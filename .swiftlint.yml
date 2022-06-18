@@ -1,4 +1,6 @@
 line_length: 
   ignores_comments: true
+type_name:
+  allowed_symbols: "_"
 excluded:
-  - Agora-*-Example
+  - RealityToolkit+Example/
