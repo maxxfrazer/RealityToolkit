@@ -8,7 +8,6 @@
 import RealityKit
 import AVKit
 
-@available(iOS 14.0, macOS 11.0, *)
 /// RealityToolkit's RUIVideoMaterial helps you create a RealityKit VideoMaterial 🎥🎞
 public class RTVideoMaterial {
 

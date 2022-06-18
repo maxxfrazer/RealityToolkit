@@ -56,9 +56,35 @@ import OSLog
                     throw LoadRemoteError.cannotDelete
                 }
             }
-            let (url, _) = try await URLSession.shared.download(from: url)
+            var moveFrom: URL!
+            if #available(iOS 15.0, macOS 12.0, *) {
+                (moveFrom, _) = try await URLSession.shared.download(from: url)
+            } else {
+                let req = URLRequest(url: url)
+                var throwableErr: Error?
+                let semaphore = DispatchSemaphore(value: 0)
+                let task = URLSession.shared.downloadTask(with: req) { downloadURL, resp, err in
+                    defer { semaphore.signal() }
+                    if let err = err {
+                        RealityToolkit.RUIPrint("Could not download item: \(err)")
+                        throwableErr = err
+                        return
+                    }
+                    moveFrom = downloadURL
+                }
+                task.resume()
+                semaphore.wait()
+                if let throwableErr = throwableErr {
+                    throw throwableErr
+                }
+                if moveFrom == nil {
+                    throw LoadRemoteError.downloadError
+                }
+            }
+
+//            let (url, _) = try await URLSession.shared.download(from: url)
             try FileManager.default.moveItem(
-                atPath: url.path, toPath: endLocation.path
+                atPath: moveFrom.path, toPath: endLocation.path
             )
 
             return endLocation
