@@ -63,7 +63,7 @@ import OSLog
                 let req = URLRequest(url: url)
                 var throwableErr: Error?
                 let semaphore = DispatchSemaphore(value: 0)
-                let task = URLSession.shared.downloadTask(with: req) { downloadURL, resp, err in
+                let task = URLSession.shared.downloadTask(with: req) { downloadURL, _, err in
                     defer { semaphore.signal() }
                     if let err = err {
                         RealityToolkit.RUIPrint("Could not download item: \(err)")
