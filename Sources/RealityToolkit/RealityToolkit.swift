@@ -33,7 +33,8 @@ import OSLog
     ///   - useCache: Use the local file if it already exists. Default `true`
     /// - Returns: Returns the URL the file is downloaded to.
     public static func downloadRemoteFile(
-        contentsOf url: URL, saveTo destination: URL? = nil, useCache: Bool = true) async throws -> URL {
+        contentsOf url: URL, saveTo destination: URL? = nil, useCache: Bool = true
+    ) async throws -> URL {
             if !url.absoluteString.hasPrefix("http") {
                 RealityToolkit.RUIPrint("URL is already local. To move the file, call `FileManager.default.moveItem`")
                 if FileManager.default.fileExists(atPath: url.path) { return url }
@@ -56,37 +57,15 @@ import OSLog
                     throw LoadRemoteError.cannotDelete
                 }
             }
-            var moveFrom: URL!
             if #available(iOS 15.0, macOS 12.0, *) {
-                (moveFrom, _) = try await URLSession.shared.download(from: url)
+                let (moveFrom, _) = try await URLSession.shared.download(from: url)
+                try FileManager.default.moveItem(
+                    atPath: moveFrom.path, toPath: endLocation.path
+                )
             } else {
-                let req = URLRequest(url: url)
-                var throwableErr: Error?
-                let semaphore = DispatchSemaphore(value: 0)
-                let task = URLSession.shared.downloadTask(with: req) { downloadURL, _, err in
-                    defer { semaphore.signal() }
-                    if let err = err {
-                        RealityToolkit.RUIPrint("Could not download item: \(err)")
-                        throwableErr = err
-                        return
-                    }
-                    moveFrom = downloadURL
-                }
-                task.resume()
-                semaphore.wait()
-                if let throwableErr = throwableErr {
-                    throw throwableErr
-                }
-                if moveFrom == nil {
-                    throw LoadRemoteError.downloadError
-                }
+              let data = try Data(contentsOf: url)
+              try data.write(to: endLocation)
             }
-
-//            let (url, _) = try await URLSession.shared.download(from: url)
-            try FileManager.default.moveItem(
-                atPath: moveFrom.path, toPath: endLocation.path
-            )
-
             return endLocation
         }
 }

@@ -62,6 +62,9 @@ final class Download_Tests: XCTestCase {
         } catch let err as URLError {
             XCTAssertTrue(err.errorCode == URLError.Code.cannotFindHost.rawValue, "Wrong kind of error coming back")
             return
+        } catch let err as CocoaError {
+            XCTAssertEqual(err.errorCode, CocoaError.Code.fileReadUnknown.rawValue, "Wrong kind of error coming back")
+            return
         }
         XCTFail("The download should have failed")
     }
