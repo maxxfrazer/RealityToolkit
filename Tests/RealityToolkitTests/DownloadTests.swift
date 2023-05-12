@@ -12,7 +12,6 @@ import RealityKit
 import RealityFoundation
 import Combine
 
-@available(iOS 15.0, macOS 12.0, *)
 final class Download_Tests: XCTestCase {
 
     var downloadsFolder: URL = {
