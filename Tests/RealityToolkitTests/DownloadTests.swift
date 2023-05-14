@@ -12,7 +12,6 @@ import RealityKit
 import RealityFoundation
 import Combine
 
-@available(iOS 15.0, macOS 12.0, *)
 final class Download_Tests: XCTestCase {
 
     var downloadsFolder: URL = {
@@ -31,6 +30,7 @@ final class Download_Tests: XCTestCase {
         return folder
     }()
 
+    @MainActor
     func testDownloadImg() async throws {
         let saveToParam = self.downloadsFolder.appendingPathComponent("test_image.png")
         let testImg = "https://www.freepnglogos.com/uploads/google-logo-png/" +
@@ -69,6 +69,7 @@ final class Download_Tests: XCTestCase {
         XCTFail("The download should have failed")
     }
 
+    @MainActor
     func testDownloadUsdz() async throws {
         let testImg = "https://developer.apple.com/augmented-reality/quick-look/models/retrotv/tv_retro.usdz"
         let remoteFileLoaded = try await RealityToolkit.downloadRemoteFile(

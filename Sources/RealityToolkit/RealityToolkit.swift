@@ -35,37 +35,32 @@ import OSLog
     public static func downloadRemoteFile(
         contentsOf url: URL, saveTo destination: URL? = nil, useCache: Bool = true
     ) async throws -> URL {
-            if !url.absoluteString.hasPrefix("http") {
-                RealityToolkit.RUIPrint("URL is already local. To move the file, call `FileManager.default.moveItem`")
-                if FileManager.default.fileExists(atPath: url.path) { return url }
-                RealityToolkit.RUIPrint("File at local URL does not exist.")
-                throw LoadRemoteError.localURLProvided
-            }
-            let filename = url.lastPathComponent
-            var endLocation = destination ?? FileManager.default.temporaryDirectory
-            if endLocation.hasDirectoryPath {
-                endLocation.appendPathComponent(filename)
-            }
-            if FileManager.default.fileExists(atPath: endLocation.path) {
-                if useCache {
-                    return endLocation
-                }
-                do {
-                    try FileManager.default.removeItem(atPath: endLocation.path)
-                } catch let err {
-                    RealityToolkit.RUIPrint("Could not remove item: \(err)")
-                    throw LoadRemoteError.cannotDelete
-                }
-            }
-            if #available(iOS 15.0, macOS 12.0, *) {
-                let (moveFrom, _) = try await URLSession.shared.download(from: url)
-                try FileManager.default.moveItem(
-                    atPath: moveFrom.path, toPath: endLocation.path
-                )
-            } else {
-              let data = try Data(contentsOf: url)
-              try data.write(to: endLocation)
-            }
-            return endLocation
+        if !url.absoluteString.hasPrefix("http") {
+            RealityToolkit.RUIPrint("URL is already local. To move the file, call `FileManager.default.moveItem`")
+            if FileManager.default.fileExists(atPath: url.path) { return url }
+            RealityToolkit.RUIPrint("File at local URL does not exist.")
+            throw LoadRemoteError.localURLProvided
         }
+        let filename = url.lastPathComponent
+        var endLocation = destination ?? FileManager.default.temporaryDirectory
+        if endLocation.hasDirectoryPath {
+            endLocation.appendPathComponent(filename)
+        }
+        if FileManager.default.fileExists(atPath: endLocation.path) {
+            if useCache {
+                return endLocation
+            }
+            do {
+                try FileManager.default.removeItem(atPath: endLocation.path)
+            } catch let err {
+                RealityToolkit.RUIPrint("Could not remove item: \(err)")
+                throw LoadRemoteError.cannotDelete
+            }
+        }
+        let (moveFrom, _) = try await URLSession.shared.download(from: url)
+        try FileManager.default.moveItem(
+            atPath: moveFrom.path, toPath: endLocation.path
+        )
+        return endLocation
+    }
 }

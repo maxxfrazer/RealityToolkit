@@ -35,7 +35,6 @@ public extension RealityToolkit {
     internal static func loadResourceCompletion(
         contentsOf url: URL
     ) async throws -> TextureResource {
-        if Thread.isMainThread { return try TextureResource.load(contentsOf: url) }
         return try await MainActor.run { try TextureResource.load(contentsOf: url) }
     }
 }
@@ -61,12 +60,11 @@ public extension RealityToolkit {
     static func loadEntity(
         contentsOf url: URL, withName resourceName: String? = nil,
         saveTo destination: URL? = nil, useCache: Bool = true,
-        using loadMethod: @escaping ((_ contentsOf: URL, _: String?) throws -> Entity) = Entity.load
+        using loadMethod: @escaping (@MainActor(_ contentsOf: URL, _: String?) throws -> Entity) = Entity.load
     ) async throws -> Entity {
         let localUrl = try await RealityToolkit.downloadRemoteFile(
             contentsOf: url, saveTo: destination, useCache: useCache
         )
-        if Thread.isMainThread { return try loadMethod(localUrl, resourceName) }
         return try await MainActor.run { try loadMethod(localUrl, resourceName) }
     }
 
