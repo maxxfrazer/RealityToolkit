@@ -12,14 +12,15 @@ import AppKit.NSColor
 import UIKit.UIColor
 #endif
 
-typealias BoldMaterial = PhysicallyBasedMaterial
+/// A RealityKit Material where colors really pop, and do not respond to lighting.
+public typealias BoldMaterial = PhysicallyBasedMaterial
 
-extension BoldMaterial {
+public extension BoldMaterial {
     /// An initialiser for making a ``BoldMaterial``. BoldMaterial is essentially just a PhysicallyBasedMaterial,
     /// but with some properties that make non-responsive to lighting, and the colours pop more vividly than an UnlitMaterial.
     /// - Parameters:
     ///   - color: Color to set for the Bold material.
-    public init(color: Material.Color) {
+    init(color: Material.Color) {
         self.init(color: color, texture: nil)
     }
 
@@ -27,7 +28,7 @@ extension BoldMaterial {
     /// but with some properties that make non-responsive to lighting, and the colours pop more vividly than an UnlitMaterial.
     /// - Parameters:
     ///   - texture: Texture to set for the Bold material.
-    public init(texture: MaterialParameters.Texture) {
+    init(texture: MaterialParameters.Texture) {
         self.init(color: nil, texture: texture)
     }
     internal init(color: Material.Color?, texture: MaterialParameters.Texture?) {
