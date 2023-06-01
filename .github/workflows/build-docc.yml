@@ -26,7 +26,9 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3.5.2
+      - name: Switch Xcode
+        run: sudo xcode-select --switch /Applications/Xcode_14.3.app
       - name: Build DocC
         run: |
           xcodebuild docbuild -scheme RealityToolkit -derivedDataPath /tmp/docbuild -destination 'generic/platform=iOS';
@@ -36,10 +38,9 @@ jobs:
             --output-path docs;
           echo "<script>window.location.href += \"/documentation/realitytoolkit\"</script>" > docs/index.html
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v1.0.8
         with:
-          # Upload docs directory
           path: 'docs'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v2
